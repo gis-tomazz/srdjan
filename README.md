@@ -29,3 +29,10 @@ ko naslednjič zaganjaš image, jo najdeš z: ```sudo docker images``` (IMAGE ID
 in napišeš namesto ```tensorflow/tensorflow:latest-gpu-py3-jupyter``` ta IMAGE ID
 
 ```sudo docker run --gpus all -v absolutna_pot_do_nastalega_direktorija:/srgan -w /tf -it -p 8888:8888 IMAGE_ID```
+
+## Update
+v mapi ```srdjan``` zaženi:
+```
+git checkout .
+git pull
+```
