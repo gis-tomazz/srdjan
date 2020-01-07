@@ -14,7 +14,7 @@ npr.:
 - -w ... working directory na docker-ju
 
 
-4. Naredi softlink, do srgan, da vidiš mapo v jupytru:
+4. Naredi softlink do srgan, da vidiš mapo v jupytru:
 
 - najdi ime od tega dockerja: ```sudo docker ps -a```
 - ```sudo docker exec ime_dockerja ln -s /srgan```
