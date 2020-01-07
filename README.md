@@ -18,3 +18,14 @@ npr.:
 
 - najdi ime od tega dockerja: ```sudo docker ps -a```
 - ```sudo docker exec ime_dockerja ln -s /srgan```
+
+5. commit - da ostane v dockerju inštaliran PIL in gdal
+https://docs.docker.com/engine/reference/commandline/commit/
+
+```sudo docker commit modest_kilby```
+
+ko naslednjič zaganjaš image, jo najdeš z: ```sudo docker images``` (IMAGE ID)
+
+in napišeš namesto ```tensorflow/tensorflow:latest-gpu-py3-jupyter``` ta IMAGE ID
+
+```sudo docker run --gpus all -v absolutna_pot_do_nastalega_direktorija:/srgan -w /tf -it -p 8888:8888 IMAGE_ID```
