@@ -24,6 +24,8 @@ with open('bad_ids.txt') as f:
     bad_ids = set([int(line.rstrip('\n')) for line in f])
 """
 
+im_ids = []
+
 for date in ['13p4', '23p5', '26p4']:
     ids_low_res = [el[0][0] for el in img_to_array(f"{patches_path}outlabels_{date}_64x64.tif",dtype='uint32')]
     ids_high_res = [el[0][0] for el in img_to_array(f"{patches_path}outlabels_{date}_256x256.tif",dtype='uint32')]
@@ -39,9 +41,15 @@ for date in ['13p4', '23p5', '26p4']:
             
             lr_im = patches_low_res[(lref_inx*64):((lref_inx+1))*64,0:64,:]
             hr_im = patches_high_res[(href_inx*256):((href_inx+1))*256,0:256,:]
+
+            im_ids.append(id)
             
             imageio.imwrite(f"{data_patches_path}lr/{id}.png", lr_im.astype(np.uint8))
             imageio.imwrite(f"{data_patches_path}hr/{id}.png", hr_im.astype(np.uint8))
 
         except ValueError:
             pass
+
+with open('im_ids.txt', 'w') as f:
+    for item in im_ids:
+        f.write("%s\n" % item)
