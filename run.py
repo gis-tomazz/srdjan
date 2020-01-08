@@ -7,6 +7,8 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 
+import imageio
+
 import tensorflow as tf
 from tensorflow.keras import Input
 from tensorflow.keras.applications import VGG19
@@ -15,7 +17,6 @@ from tensorflow.keras.layers import BatchNormalization, Activation, LeakyReLU, A
 from tensorflow.keras.layers import Conv2D, UpSampling2D
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
-from scipy.misc import imread, imresize
 
 #https://github.com/tensorflow/tensorflow/issues/24496
 #https://github.com/tensorflow/tensorflow/issues/33504
@@ -33,6 +34,19 @@ config.log_device_placement = True
 sess = tf.Session(config=config)
 tf.keras.backend.set_session(sess)
 """
+
+bad_ids = set()
+im_ids = []
+
+def init_globals():
+    global bad_ids
+    global im_ids
+    
+    with open('bad_ids.txt') as f:
+        bad_ids = set([int(line.rstrip('\n')) for line in f])
+
+    with open('im_ids.txt') as f:
+        im_ids = [int(line.rstrip('\n')) for line in f]
 
 def residual_block(x):
     """
@@ -192,22 +206,28 @@ def build_vgg():
 
 def sample_images(data_dir, batch_size, high_resolution_shape, low_resolution_shape):
     # Make a list of all images inside the data directory
-    all_images = glob.glob(data_dir)
+    #all_images = glob.glob(data_dir)
 
     # Choose a random batch of images
-    images_batch = np.random.choice(all_images, size=batch_size)
+    #images_batch = np.random.choice(all_images, size=batch_size)
+    images_batch = np.random.choice(im_ids, size=batch_size)
+    for inx, imid in enumerate(images_batch):
+        while imid in bad_ids:
+            imid = np.random.choice(im_ids, size=1)
+            imid = imid[0]
+        
+        images_batch[inx] = imid
 
     low_resolution_images = []
     high_resolution_images = []
 
     for img in images_batch:
         # Get an ndarray of the current image
-        img1 = imread(img, mode='RGB')
-        img1 = img1.astype(np.float32)
+        img1_low_resolution = imageio.imread(f"{data_dir}lr/{img}.png")
+        img1_low_resolution = img1_low_resolution.astype(np.float32)
 
-        # Resize the image
-        img1_high_resolution = imresize(img1, high_resolution_shape)
-        img1_low_resolution = imresize(img1, low_resolution_shape)
+        img1_high_resolution = imageio.imread(f"{data_dir}hr/{img}.png")
+        img1_high_resolution = img1_high_resolution.astype(np.float32)
 
         # Do a random horizontal flip
         if np.random.random() < 0.5:
@@ -257,9 +277,10 @@ def write_log(callback, name, value, batch_no):
     callback.writer.add_summary(summary, batch_no)
     callback.writer.flush()
     """
-
 if __name__ == '__main__':
-    data_dir = "data/img_align_celeba/*.*"
+    init_globals()
+
+    data_dir = "data/patches/"
     epochs = 30000
     batch_size = 1
     mode = 'train'
