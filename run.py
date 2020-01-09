@@ -229,7 +229,11 @@ def sample_images(data_dir, batch_size, high_resolution_shape, low_resolution_sh
         img1_high_resolution = imageio.imread(f"{data_dir}hr/{img}.png")
         img1_high_resolution = img1_high_resolution.astype(np.float32)
 
-        # Do a random horizontal flip
+        # Resize the image - A: to naredi tudi resize vrednosti na 0-255
+        #img1_high_resolution = imresize(img1, high_resolution_shape)
+        #img1_low_resolution = imresize(img1, low_resolution_shape)
+
+        # Do a random horizontal flip A: zakaj random flip??!
         if np.random.random() < 0.5:
             img1_high_resolution = np.fliplr(img1_high_resolution)
             img1_low_resolution = np.fliplr(img1_low_resolution)
@@ -345,7 +349,7 @@ if __name__ == '__main__':
             high_resolution_images, low_resolution_images = sample_images(data_dir=data_dir, batch_size=batch_size,
                                                                           low_resolution_shape=low_resolution_shape,
                                                                           high_resolution_shape=high_resolution_shape)
-            # Normalize images
+            # Normalize images - A: to se mi ne zdi nič narobe, mogoče je potrebno zaradi numerične stabilnost??
             high_resolution_images = high_resolution_images / 127.5 - 1.
             low_resolution_images = low_resolution_images / 127.5 - 1.
 
