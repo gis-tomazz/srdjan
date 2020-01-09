@@ -4,6 +4,7 @@
 import glob
 import time
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -220,6 +221,7 @@ def sample_images(data_dir, batch_size, high_resolution_shape, low_resolution_sh
 
     low_resolution_images = []
     high_resolution_images = []
+    ids = []
 
     for img in images_batch:
         # Get an ndarray of the current image
@@ -234,23 +236,28 @@ def sample_images(data_dir, batch_size, high_resolution_shape, low_resolution_sh
         #img1_low_resolution = imresize(img1, low_resolution_shape)
 
         # Do a random horizontal flip A: zakaj random flip??!
-        if np.random.random() < 0.5:
-            img1_high_resolution = np.fliplr(img1_high_resolution)
-            img1_low_resolution = np.fliplr(img1_low_resolution)
+        #if np.random.random() < 0.5:
+        #    img1_high_resolution = np.fliplr(img1_high_resolution)
+        #    img1_low_resolution = np.fliplr(img1_low_resolution)
 
         high_resolution_images.append(img1_high_resolution)
         low_resolution_images.append(img1_low_resolution)
+        ids.append(img)
 
     # Convert the lists to Numpy NDArrays
-    return np.array(high_resolution_images), np.array(low_resolution_images)
-
+    return np.array(high_resolution_images), np.array(low_resolution_images), ids
 
 def save_images(low_resolution_image, original_image, generated_image, path):
     """
     Save low-resolution, high-resolution(original) and
     generated high-resolution images in a single image
     """
-    fig = plt.figure()
+
+    my_dpi = mpl.rcParams['figure.dpi']
+    nrows = 1
+    fig = plt.figure(constrained_layout=True, figsize=((nrows*1200)/my_dpi, (nrows*400)/my_dpi), dpi=my_dpi)
+    
+
     ax = fig.add_subplot(1, 3, 1)
     ax.imshow(low_resolution_image)
     ax.axis("off")
@@ -266,7 +273,9 @@ def save_images(low_resolution_image, original_image, generated_image, path):
     ax.axis("off")
     ax.set_title("Generated")
 
-    plt.savefig(path)
+    #plt.savefig(path + '_figure')
+
+    imageio.imwrite(f"{path}.png", ((generated_image + 1) * 127.5).astype(np.uint8))
 
 
 def write_log(callback, name, value, batch_no):
@@ -346,7 +355,7 @@ if __name__ == '__main__':
             """
 
             # Sample a batch of images
-            high_resolution_images, low_resolution_images = sample_images(data_dir=data_dir, batch_size=batch_size,
+            high_resolution_images, low_resolution_images, ids = sample_images(data_dir=data_dir, batch_size=batch_size,
                                                                           low_resolution_shape=low_resolution_shape,
                                                                           high_resolution_shape=high_resolution_shape)
             # Normalize images - A: to se mi ne zdi nič narobe, mogoče je potrebno zaradi numerične stabilnost??
@@ -373,7 +382,7 @@ if __name__ == '__main__':
             """
 
             # Sample a batch of images
-            high_resolution_images, low_resolution_images = sample_images(data_dir=data_dir, batch_size=batch_size,
+            high_resolution_images, low_resolution_images, ids = sample_images(data_dir=data_dir, batch_size=batch_size,
                                                                           low_resolution_shape=low_resolution_shape,
                                                                           high_resolution_shape=high_resolution_shape)
             # Normalize images
@@ -395,7 +404,7 @@ if __name__ == '__main__':
 
             # Sample and save images after every 100 epochs
             if epoch % 100 == 0:
-                high_resolution_images, low_resolution_images = sample_images(data_dir=data_dir, batch_size=batch_size,
+                high_resolution_images, low_resolution_images, ids = sample_images(data_dir=data_dir, batch_size=batch_size,
                                                                               low_resolution_shape=low_resolution_shape,
                                                                               high_resolution_shape=high_resolution_shape)
                 # Normalize images
@@ -406,7 +415,7 @@ if __name__ == '__main__':
 
                 for index, img in enumerate(generated_images):
                     save_images(low_resolution_images[index], high_resolution_images[index], img,
-                                path="results/img_{}_{}".format(epoch, index))
+                                path="results/img_{}_{}_{}".format(epoch, index, ids[index]))
 
         # Save models
         generator.save_weights("generator.h5")
@@ -424,7 +433,7 @@ if __name__ == '__main__':
         discriminator.load_weights("discriminator.h5")
 
         # Get 10 random images
-        high_resolution_images, low_resolution_images = sample_images(data_dir=data_dir, batch_size=10,
+        high_resolution_images, low_resolution_images, ids = sample_images(data_dir=data_dir, batch_size=10,
                                                                       low_resolution_shape=low_resolution_shape,
                                                                       high_resolution_shape=high_resolution_shape)
         # Normalize images
@@ -437,4 +446,4 @@ if __name__ == '__main__':
         # Save images
         for index, img in enumerate(generated_images):
             save_images(low_resolution_images[index], high_resolution_images[index], img,
-                        path="results/gen_{}".format(index))
+                        path="results/gen_{}_{}".format(index, ids[index]))
