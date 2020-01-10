@@ -39,14 +39,14 @@ tf.keras.backend.set_session(sess)
 bad_ids = set()
 im_ids = []
 
-def init_globals():
+def init_globals(fname_bad_ids, fname_im_ids):
     global bad_ids
     global im_ids
-    
-    with open('bad_ids.txt') as f:
+
+    with open(fname_bad_ids) as f:
         bad_ids = set([int(line.rstrip('\n')) for line in f])
 
-    with open('im_ids.txt') as f:
+    with open(fname_im_ids) as f:
         im_ids = [int(line.rstrip('\n')) for line in f]
 
 def residual_block(x):
@@ -325,9 +325,13 @@ def write_log(callback, name, value, batch_no):
     callback.writer.flush()
     """
 if __name__ == '__main__':
-    init_globals()
 
     ###############################settings
+    fname_bad_ids = 'bad_ids.txt'
+    fname_im_ids = 'im_ids.txt'
+    
+    init_globals(fname_bad_ids, fname_im_ids)
+
     #output data dir
     data_dir = "data/patches/"
     epochs = 30000
