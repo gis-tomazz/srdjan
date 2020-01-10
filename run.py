@@ -228,23 +228,26 @@ def sample_images(data_dir, batch_size, high_resolution_shape, low_resolution_sh
     # tukaj pogledam, da ni v bad_ids
     for inx, imid in enumerate(images_batch_init):
         loop_inx = 0
-        while imid in bad_ids:
-            
-            if loop_inx > len(im_ids):  # da se ne zacikla
-                break
+        try:
+            while imid in bad_ids:
+                
+                if loop_inx > len(im_ids):  # da se ne zacikla
+                    break
 
-            if random:
-                imid = np.random.choice(im_ids, size=1)
-            else:
-                imid = im_ids[sample_index:(sample_index + 1)]
-                sample_index = sample_index + 1
+                if random:
+                    imid = np.random.choice(im_ids, size=1)
+                else:
+                    imid = im_ids[sample_index:(sample_index + 1)]
+                    sample_index = sample_index + 1
 
-            if len(imid) < 1:
-                break
+                if len(imid) < 1:
+                    break
 
-            imid = imid[0]
-            
-            loop_inx = loop_inx + 1
+                imid = imid[0]
+                
+                loop_inx = loop_inx + 1
+        except IndexError:
+            pass
         
         images_batch_init[inx] = imid
 
