@@ -250,7 +250,7 @@ def sample_images(data_dir, batch_size, high_resolution_shape, low_resolution_sh
 
     #v images_batch_init so lahko še kakšni bad inx - npr. na koncu arraya, ko ga vrže iz zanke
     for imid in images_batch_init:
-        if imid not in bad_ids:
+        if (type(imid) is not list) and (imid not in bad_ids):
             images_batch.append(imid)
 
     low_resolution_images = []
@@ -466,16 +466,17 @@ if __name__ == '__main__':
         discriminator.load_weights("discriminator.h5")
 
         # Get 10 random images
-        high_resolution_images, low_resolution_images, ids, predict_sample_index = sample_images(data_dir=data_dir, batch_size=None,
-                                                                      low_resolution_shape=low_resolution_shape,
-                                                                      high_resolution_shape=high_resolution_shape, random=False, sample_index=0,mode=mode)
-        # Normalize images
-        low_resolution_images = low_resolution_images / 127.5 - 1.
+        for imid in im_ids:
+            high_resolution_images, low_resolution_images, ids, predict_sample_index = sample_images(data_dir=data_dir, batch_size=1,
+                                                                        low_resolution_shape=low_resolution_shape,
+                                                                        high_resolution_shape=high_resolution_shape, random=False, sample_index=0,mode=mode)
+            # Normalize images
+            low_resolution_images = low_resolution_images / 127.5 - 1.
 
-        # Generate high-resolution images from low-resolution images
-        generated_images = generator.predict_on_batch(low_resolution_images)
+            # Generate high-resolution images from low-resolution images
+            generated_images = generator.predict_on_batch(low_resolution_images)
 
-        # Save images
-        for index, img in enumerate(generated_images):
-            save_images(low_resolution_images[index], [], img,
-                        path="results/gen_{}_{}".format(index, ids[index]))
+            # Save images
+            for index, img in enumerate(generated_images):
+                save_images(low_resolution_images[index], [], img,
+                            path="results/gen_{}_{}".format(index, ids[index]))
