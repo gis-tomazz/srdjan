@@ -37,6 +37,17 @@ git checkout .
 git pull
 ```
 
+## required folders
+- patches
+- results
+- logs
+- data
+-- patches
+--- t
+--- lr
+--- hr
+
+
 ## srgan
 
 ```
