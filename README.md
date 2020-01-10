@@ -49,6 +49,7 @@ python run.py
 
 ```
 sudo docker run --gpus all -ti -v /home/tomazz/work/srgan:/srgan -w /srgan mdl4eo/otbtf1.7:gpu bash
+./install.sh
 ```
 
 ```
