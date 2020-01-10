@@ -36,3 +36,9 @@ v mapi ```srdjan``` zaženi:
 git checkout .
 git pull
 ```
+
+## srgan
+
+```
+sudo docker run --gpus all -ti -v /home/tomazz/work/srgan:/srgan -w /srgan mdl4eo/otbtf1.7:gpu bash
+```
