@@ -327,14 +327,18 @@ def write_log(callback, name, value, batch_no):
 if __name__ == '__main__':
     init_globals()
 
+    ###############################settings
+    #output data dir
     data_dir = "data/patches/"
     epochs = 30000
     batch_size = 1
     mode = 'train'
+    random_sampling = False
+    ###################################
 
     generator_sample_index = 0
     discriminator_sample_index = 0
-    random_sampling = False
+    
 
     # Shape of low-resolution and high-resolution images
     low_resolution_shape = (64, 64, 3)
@@ -395,7 +399,7 @@ if __name__ == '__main__':
             # Sample a batch of images
             high_resolution_images, low_resolution_images, ids, discriminator_sample_index = sample_images(data_dir=data_dir, batch_size=batch_size,
                                                                           low_resolution_shape=low_resolution_shape,
-                                                                          high_resolution_shape=high_resolution_shape, random_sampling, discriminator_sample_index)
+                                                                          high_resolution_shape=high_resolution_shape, random=random_sampling, sample_index=discriminator_sample_index)
             # Normalize images - A: to se mi ne zdi nič narobe, mogoče je potrebno zaradi numerične stabilnost??
             high_resolution_images = high_resolution_images / 127.5 - 1.
             low_resolution_images = low_resolution_images / 127.5 - 1.
@@ -422,7 +426,7 @@ if __name__ == '__main__':
             # Sample a batch of images
             high_resolution_images, low_resolution_images, ids, generator_sample_index = sample_images(data_dir=data_dir, batch_size=batch_size,
                                                                           low_resolution_shape=low_resolution_shape,
-                                                                          high_resolution_shape=high_resolution_shape, random_sampling, generator_sample_index)
+                                                                          high_resolution_shape=high_resolution_shape, random = random_sampling, sample_index = generator_sample_index)
             # Normalize images
             high_resolution_images = high_resolution_images / 127.5 - 1.
             low_resolution_images = low_resolution_images / 127.5 - 1.
@@ -444,7 +448,7 @@ if __name__ == '__main__':
             if epoch % 100 == 0:
                 high_resolution_images, low_resolution_images, ids, random_sample_index = sample_images(data_dir=data_dir, batch_size=batch_size,
                                                                               low_resolution_shape=low_resolution_shape,
-                                                                              high_resolution_shape=high_resolution_shape, True, 0)
+                                                                              high_resolution_shape=high_resolution_shape, random = True, sample_index=0)
                 # Normalize images
                 high_resolution_images = high_resolution_images / 127.5 - 1.
                 low_resolution_images = low_resolution_images / 127.5 - 1.
@@ -473,7 +477,7 @@ if __name__ == '__main__':
         # Get 10 random images
         high_resolution_images, low_resolution_images, ids, predict_sample_index = sample_images(data_dir=data_dir, batch_size=None,
                                                                       low_resolution_shape=low_resolution_shape,
-                                                                      high_resolution_shape=high_resolution_shape, False, 0)
+                                                                      high_resolution_shape=high_resolution_shape, random=False, sample_index=0)
         # Normalize images
         high_resolution_images = high_resolution_images / 127.5 - 1.
         low_resolution_images = low_resolution_images / 127.5 - 1.

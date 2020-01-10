@@ -42,7 +42,7 @@ git pull
 ```
 sudo docker run --gpus all -ti -v /home/tomazz/work/srgan:/srgan -w /srgan  tensorflow/tensorflow:latest-gpu-py3
 ./install.sh
-python run.py
+python3 run.py
 ```
 
 ### priprava patchev
@@ -57,5 +57,5 @@ sudo docker run --gpus all -ti -v /home/tomazz/work/srgan:/srgan -w /srgan mdl4e
 
 ```
 # v /data/patches/t/ izvozi png-je iz outpatches_testiranje_64x64.tif
-python tpatches2disk.py
+python3 tpatches2disk.py
 ```
