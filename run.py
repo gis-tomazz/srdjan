@@ -464,12 +464,12 @@ if __name__ == '__main__':
         # Load models
         generator.load_weights("generator.h5")
         discriminator.load_weights("discriminator.h5")
-
+        predict_sample_index = 0
         # Get 10 random images
         for imid in im_ids:
             high_resolution_images, low_resolution_images, ids, predict_sample_index = sample_images(data_dir=data_dir, batch_size=1,
                                                                         low_resolution_shape=low_resolution_shape,
-                                                                        high_resolution_shape=high_resolution_shape, random=False, sample_index=0,mode=mode)
+                                                                        high_resolution_shape=high_resolution_shape, random=False, sample_index=predict_sample_index,mode=mode)
             # Normalize images
             low_resolution_images = low_resolution_images / 127.5 - 1.
 
