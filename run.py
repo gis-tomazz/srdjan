@@ -205,19 +205,53 @@ def build_vgg():
     return model
 
 
-def sample_images(data_dir, batch_size, high_resolution_shape, low_resolution_shape):
+def sample_images(data_dir, batch_size, high_resolution_shape, low_resolution_shape, random = True, sample_index=0):
     # Make a list of all images inside the data directory
     #all_images = glob.glob(data_dir)
 
     # Choose a random batch of images
     #images_batch = np.random.choice(all_images, size=batch_size)
-    images_batch = np.random.choice(im_ids, size=batch_size)
-    for inx, imid in enumerate(images_batch):
+
+    if batch_size is None:
+        batch_size = len(im_ids)
+
+    images_batch_init = []
+
+    if random:
+        images_batch_init = np.random.choice(im_ids, size=batch_size)
+    else:
+        images_batch_init = im_ids[sample_index:(sample_index + batch_size)]
+
+    sample_index = sample_index + batch_size
+
+    images_batch = []
+    # tukaj pogledam, da ni v bad_ids
+    for inx, imid in enumerate(images_batch_init):
+        loop_inx = 0
         while imid in bad_ids:
-            imid = np.random.choice(im_ids, size=1)
+            
+            if loop_inx > len(im_ids):  # da se ne zacikla
+                break
+
+            if random:
+                imid = np.random.choice(im_ids, size=1)
+            else:
+                imid = im_ids[sample_index:(sample_index + 1)]
+                sample_index = sample_index + 1
+
+            if len(imid) < 1:
+                break
+
             imid = imid[0]
+            
+            loop_inx = loop_inx + 1
         
-        images_batch[inx] = imid
+        images_batch_init[inx] = imid
+
+    #v images_batch_init so lahko še kakšni bad inx - npr. na koncu arraya, ko ga vrže iz zanke
+    for imid in images_batch_init:
+        if imid not in bad_ids:
+            images_batch.append(imid)
 
     low_resolution_images = []
     high_resolution_images = []
@@ -245,7 +279,7 @@ def sample_images(data_dir, batch_size, high_resolution_shape, low_resolution_sh
         ids.append(img)
 
     # Convert the lists to Numpy NDArrays
-    return np.array(high_resolution_images), np.array(low_resolution_images), ids
+    return np.array(high_resolution_images), np.array(low_resolution_images), ids, sample_index
 
 def save_images(low_resolution_image, original_image, generated_image, path):
     """
@@ -297,6 +331,10 @@ if __name__ == '__main__':
     epochs = 30000
     batch_size = 1
     mode = 'train'
+
+    generator_sample_index = 0
+    discriminator_sample_index = 0
+    random_sampling = False
 
     # Shape of low-resolution and high-resolution images
     low_resolution_shape = (64, 64, 3)
@@ -355,9 +393,9 @@ if __name__ == '__main__':
             """
 
             # Sample a batch of images
-            high_resolution_images, low_resolution_images, ids = sample_images(data_dir=data_dir, batch_size=batch_size,
+            high_resolution_images, low_resolution_images, ids, discriminator_sample_index = sample_images(data_dir=data_dir, batch_size=batch_size,
                                                                           low_resolution_shape=low_resolution_shape,
-                                                                          high_resolution_shape=high_resolution_shape)
+                                                                          high_resolution_shape=high_resolution_shape, random_sampling, discriminator_sample_index)
             # Normalize images - A: to se mi ne zdi nič narobe, mogoče je potrebno zaradi numerične stabilnost??
             high_resolution_images = high_resolution_images / 127.5 - 1.
             low_resolution_images = low_resolution_images / 127.5 - 1.
@@ -382,9 +420,9 @@ if __name__ == '__main__':
             """
 
             # Sample a batch of images
-            high_resolution_images, low_resolution_images, ids = sample_images(data_dir=data_dir, batch_size=batch_size,
+            high_resolution_images, low_resolution_images, ids, generator_sample_index = sample_images(data_dir=data_dir, batch_size=batch_size,
                                                                           low_resolution_shape=low_resolution_shape,
-                                                                          high_resolution_shape=high_resolution_shape)
+                                                                          high_resolution_shape=high_resolution_shape, random_sampling, generator_sample_index)
             # Normalize images
             high_resolution_images = high_resolution_images / 127.5 - 1.
             low_resolution_images = low_resolution_images / 127.5 - 1.
@@ -404,9 +442,9 @@ if __name__ == '__main__':
 
             # Sample and save images after every 100 epochs
             if epoch % 100 == 0:
-                high_resolution_images, low_resolution_images, ids = sample_images(data_dir=data_dir, batch_size=batch_size,
+                high_resolution_images, low_resolution_images, ids, random_sample_index = sample_images(data_dir=data_dir, batch_size=batch_size,
                                                                               low_resolution_shape=low_resolution_shape,
-                                                                              high_resolution_shape=high_resolution_shape)
+                                                                              high_resolution_shape=high_resolution_shape, True, 0)
                 # Normalize images
                 high_resolution_images = high_resolution_images / 127.5 - 1.
                 low_resolution_images = low_resolution_images / 127.5 - 1.
@@ -433,9 +471,9 @@ if __name__ == '__main__':
         discriminator.load_weights("discriminator.h5")
 
         # Get 10 random images
-        high_resolution_images, low_resolution_images, ids = sample_images(data_dir=data_dir, batch_size=10,
+        high_resolution_images, low_resolution_images, ids, predict_sample_index = sample_images(data_dir=data_dir, batch_size=None,
                                                                       low_resolution_shape=low_resolution_shape,
-                                                                      high_resolution_shape=high_resolution_shape)
+                                                                      high_resolution_shape=high_resolution_shape, False, 0)
         # Normalize images
         high_resolution_images = high_resolution_images / 127.5 - 1.
         low_resolution_images = low_resolution_images / 127.5 - 1.
