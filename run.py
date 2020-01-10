@@ -205,7 +205,7 @@ def build_vgg():
     return model
 
 
-def sample_images(data_dir, batch_size, high_resolution_shape, low_resolution_shape, random = True, sample_index=0):
+def sample_images(data_dir, batch_size, high_resolution_shape, low_resolution_shape, random = True, sample_index=0, mode=None):
     # Make a list of all images inside the data directory
     #all_images = glob.glob(data_dir)
 
@@ -259,11 +259,20 @@ def sample_images(data_dir, batch_size, high_resolution_shape, low_resolution_sh
 
     for img in images_batch:
         # Get an ndarray of the current image
-        img1_low_resolution = imageio.imread(f"{data_dir}lr/{img}.png")
+
+        if mode is 'predict':
+            img1_low_resolution = imageio.imread(f"{data_dir}t/{img}.png")
+        else:
+            img1_low_resolution = imageio.imread(f"{data_dir}lr/{img}.png")
+
         img1_low_resolution = img1_low_resolution.astype(np.float32)
 
-        img1_high_resolution = imageio.imread(f"{data_dir}hr/{img}.png")
-        img1_high_resolution = img1_high_resolution.astype(np.float32)
+        if mode is not 'predict':
+            img1_high_resolution = imageio.imread(f"{data_dir}hr/{img}.png")
+            img1_high_resolution = img1_high_resolution.astype(np.float32)
+        else:
+            img1_high_resolution = []
+
 
         # Resize the image - A: to naredi tudi resize vrednosti na 0-255
         #img1_high_resolution = imresize(img1, high_resolution_shape)
@@ -282,33 +291,6 @@ def sample_images(data_dir, batch_size, high_resolution_shape, low_resolution_sh
     return np.array(high_resolution_images), np.array(low_resolution_images), ids, sample_index
 
 def save_images(low_resolution_image, original_image, generated_image, path):
-    """
-    Save low-resolution, high-resolution(original) and
-    generated high-resolution images in a single image
-    """
-
-    my_dpi = mpl.rcParams['figure.dpi']
-    nrows = 1
-    fig = plt.figure(constrained_layout=True, figsize=((nrows*1200)/my_dpi, (nrows*400)/my_dpi), dpi=my_dpi)
-    
-
-    ax = fig.add_subplot(1, 3, 1)
-    ax.imshow(low_resolution_image)
-    ax.axis("off")
-    ax.set_title("Low-resolution")
-
-    ax = fig.add_subplot(1, 3, 2)
-    ax.imshow(original_image)
-    ax.axis("off")
-    ax.set_title("Original")
-
-    ax = fig.add_subplot(1, 3, 3)
-    ax.imshow(generated_image)
-    ax.axis("off")
-    ax.set_title("Generated")
-
-    #plt.savefig(path + '_figure')
-
     imageio.imwrite(f"{path}.png", ((generated_image + 1) * 127.5).astype(np.uint8))
 
 
@@ -328,7 +310,12 @@ if __name__ == '__main__':
 
     ###############################settings
     fname_bad_ids = 'bad_ids.txt'
+    
+    mode = 'train'
     fname_im_ids = 'im_ids.txt'
+
+    #mode = 'predict'
+    #fname_im_ids = 'im_ids_testiranje.txt'
     
     init_globals(fname_bad_ids, fname_im_ids)
 
@@ -336,7 +323,7 @@ if __name__ == '__main__':
     data_dir = "data/patches/"
     epochs = 30000
     batch_size = 1
-    mode = 'train'
+    
     random_sampling = False
     ###################################
 
@@ -481,9 +468,8 @@ if __name__ == '__main__':
         # Get 10 random images
         high_resolution_images, low_resolution_images, ids, predict_sample_index = sample_images(data_dir=data_dir, batch_size=None,
                                                                       low_resolution_shape=low_resolution_shape,
-                                                                      high_resolution_shape=high_resolution_shape, random=False, sample_index=0)
+                                                                      high_resolution_shape=high_resolution_shape, random=False, sample_index=0,mode=mode)
         # Normalize images
-        high_resolution_images = high_resolution_images / 127.5 - 1.
         low_resolution_images = low_resolution_images / 127.5 - 1.
 
         # Generate high-resolution images from low-resolution images
@@ -491,5 +477,5 @@ if __name__ == '__main__':
 
         # Save images
         for index, img in enumerate(generated_images):
-            save_images(low_resolution_images[index], high_resolution_images[index], img,
+            save_images(low_resolution_images[index], [], img,
                         path="results/gen_{}_{}".format(index, ids[index]))
