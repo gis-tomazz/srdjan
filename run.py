@@ -294,7 +294,8 @@ def sample_images(data_dir, batch_size, high_resolution_shape, low_resolution_sh
     return np.array(high_resolution_images), np.array(low_resolution_images), ids, sample_index
 
 def save_images(low_resolution_image, original_image, generated_image, path):
-    imageio.imwrite(f"{path}.png", ((generated_image + 1) * 127.5).astype(np.uint8))
+    #ali tako (tf.numpy) ali pa tf.cast
+    imageio.imwrite(f"{path}.png", ((generated_image.numpy() + 1) * 127.5).astype(np.uint8))
 
 
 def write_log(callback, name, value, batch_no):
