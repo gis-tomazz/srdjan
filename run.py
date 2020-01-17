@@ -19,6 +19,8 @@ from tensorflow.keras.layers import Conv2D, UpSampling2D
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 
+from scipy.misc import imread, imresize
+
 #https://github.com/tensorflow/tensorflow/issues/24496
 #https://github.com/tensorflow/tensorflow/issues/33504
 #
@@ -278,13 +280,13 @@ def sample_images(data_dir, batch_size, high_resolution_shape, low_resolution_sh
 
 
         # Resize the image - A: to naredi tudi resize vrednosti na 0-255
-        #img1_high_resolution = imresize(img1, high_resolution_shape)
-        #img1_low_resolution = imresize(img1, low_resolution_shape)
+        img1_high_resolution = imresize(img1_high_resolution, high_resolution_shape)
+        img1_low_resolution = imresize(img1_low_resolution, low_resolution_shape)
 
         # Do a random horizontal flip A: zakaj random flip??!
-        #if np.random.random() < 0.5:
-        #    img1_high_resolution = np.fliplr(img1_high_resolution)
-        #    img1_low_resolution = np.fliplr(img1_low_resolution)
+        if np.random.random() < 0.5:
+            img1_high_resolution = np.fliplr(img1_high_resolution)
+            img1_low_resolution = np.fliplr(img1_low_resolution)
 
         high_resolution_images.append(img1_high_resolution)
         low_resolution_images.append(img1_low_resolution)
@@ -326,13 +328,13 @@ if __name__ == '__main__':
     ################################################################################################################################################
     
     init_globals(fname_bad_ids, fname_im_ids)
-    bad_ids = set() # POZOR! zakomentiraj med treniranjem
+    #bad_ids = set() # POZOR! zakomentiraj med treniranjem
     #################################################### parametri ##################################################################################
     data_dir = "data/patches/"
-    epochs = 6000
+    epochs = 10000
     batch_size = 4
     
-    random_sampling = False
+    random_sampling = True
     ################################################################################################################################################
 
     generator_sample_index = 0
