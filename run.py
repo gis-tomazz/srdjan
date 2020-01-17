@@ -264,7 +264,7 @@ def sample_images(data_dir, batch_size, high_resolution_shape, low_resolution_sh
         # Get an ndarray of the current image
 
         if mode is 'predict':
-            img1_low_resolution = imageio.imread(f"{data_dir}t/{img}.png")
+            img1_low_resolution = imageio.imread(f"{data_dir}t/lr/{img}.png")
         else:
             img1_low_resolution = imageio.imread(f"{data_dir}lr/{img}.png")
 
@@ -303,7 +303,7 @@ def write_log(callback, name, value, batch_no):
     Write scalars to Tensorboard
     """
     """
-    summary = tf.Summary()
+    summary = tf.Summary()  #nisem našel ekvivalenta te funkcije v TF2, zato je to zakomentirano, ker v TF2 ne dela, v TF1 pa bi verjetno delalo
     summary_value = summary.value.add()
     summary_value.simple_value = value
     summary_value.tag = name
@@ -314,22 +314,26 @@ if __name__ == '__main__':
 
     ###############################settings
     fname_bad_ids = 'bad_ids.txt'
-    
+
+    ###################################################### tukaj določiš mode (train/predict) ######################################################
+    ## fname_im_ids je datoteka id-jev iz katerih jemlje imena slikic - ID-ji v tej datoteki morajo obstajati tudi na disku
     mode = 'train'
     fname_im_ids = 'im_ids.txt'
 
+    # odkomentiraj spodnje, ko je model natreniran
     #mode = 'predict'
     #fname_im_ids = 'im_ids_testiranje.txt'
+    ################################################################################################################################################
     
     init_globals(fname_bad_ids, fname_im_ids)
-
-    #output data dir
+    bad_ids = set() # POZOR! zakomentiraj med treniranjem
+    #################################################### parametri ##################################################################################
     data_dir = "data/patches/"
-    epochs = 30000
-    batch_size = 1
+    epochs = 6000
+    batch_size = 4
     
     random_sampling = False
-    ###################################
+    ################################################################################################################################################
 
     generator_sample_index = 0
     discriminator_sample_index = 0
@@ -398,6 +402,9 @@ if __name__ == '__main__':
             # Normalize images - A: to se mi ne zdi nič narobe, mogoče je potrebno zaradi numerične stabilnost??
             high_resolution_images = high_resolution_images / 127.5 - 1.
             low_resolution_images = low_resolution_images / 127.5 - 1.
+
+            if len(low_resolution_images) < 1:
+                break
 
             # Generate high-resolution images from low-resolution images
             generated_high_resolution_images = generator.predict(low_resolution_images)
