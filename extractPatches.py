@@ -6,10 +6,10 @@ import os
 
 import imageio
 
-###TODO: Tukaj nastavi tako kot imaš pri sebi:#####################
-data_patches_path = '/home/alen' #pot kamor ti shrani patche,
-lebels_tif = '/home/alen/labels.tif'  #pot do labels datoteke
-patches_tif = '/home/alen/patches.tif'  #pot do datoteke s patchi
+###TODO: Tukaj nastavi tako kot imas pri sebi:#####################
+data_patches_path = '/podatki/patchi' #pot kamor ti shrani patche MORA OBSTAJATI!!!!,
+labels_tif = '/podatki/outlabels__128x128.tif'  #pot do labels datoteke
+patches_tif = '/podatki/outpatches__128x128.3.tif'  #pot do datoteke s patchi
 velikost = 128  #velikost patcha
 ##############################################################
 
@@ -27,6 +27,7 @@ patches = img_to_array(patches_tif)
     
 i=0
 for inx, id in enumerate(ids):
+    id = id[0][0]
     try:
         im = patches[(inx*velikost):((inx+1))*velikost,0:velikost,:]
         imageio.imwrite(f"{data_patches_path}/{id}.png", im.astype(np.uint8))
